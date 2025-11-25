@@ -210,5 +210,62 @@ docker-compose restart
 - [Kibana Documentation](https://www.elastic.co/docs/get-started/the-stack)
 
 - [Logstash Documentation](https://www.elastic.co/docs/reference/logstash)
+
 ---
 
+# 🎓 Phase 3 — Create 4 Spring Boot Microservices
+- Eureka Server
+
+- Product Service
+
+- Order Service
+
+- Payment Service
+
+# 📘 Eureka Server – Project Description (Spring Boot 3 + Java 17)
+
+This project is the **Service Discovery Server** built using **Spring Boot 4** and **Spring Cloud Netflix Eureka**.  
+It plays a central role in the microservices architecture by enabling dynamic discovery and registration of services.
+
+
+
+## 🔥 Key Responsibilities of Eureka Server
+
+- Maintains a central registry of all active microservices.
+- Allows services (Product, Order, Payment) to discover each other without hard-coding URLs.
+- Provides a web dashboard at [http://localhost:8761](http://localhost:8761) for:
+    - Viewing registered instances
+    - Instance health status
+    - Heartbeat monitoring
+
+
+
+## 🧩 Tech Stack
+
+- Spring Boot 3.5.x
+- Spring Cloud Netflix Eureka Server
+- Spring Web (required for Eureka UI)
+- Java 17
+- Maven
+
+
+
+## 📦 Included Dependencies
+
+- `spring-cloud-starter-netflix-eureka-server`
+- `spring-boot-starter-web` *(Eureka dashboard requires a web environment)*
+
+
+
+## 🚀 Purpose in the Architecture
+
+Eureka Server is the **first microservice to start** in the entire system.  
+All other services (Product, Order, Payment) will:
+
+- ✔ Register themselves with Eureka
+- ✔ Fetch other service locations dynamically
+- ✔ Communicate without knowing actual server IP/port
+
+This makes the architecture **scalable**, **fault-tolerant**, and **cloud-ready**.
+
+---
