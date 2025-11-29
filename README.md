@@ -224,7 +224,7 @@ docker-compose restart
 
 # 📘 Eureka Server – Project Description (Spring Boot 3 + Java 17)
 
-This project is the **Service Discovery Server** built using **Spring Boot 4** and **Spring Cloud Netflix Eureka**.  
+This project is the **Service Discovery Server** built using **Spring Boot 3** and **Spring Cloud Netflix Eureka**.  
 It plays a central role in the microservices architecture by enabling dynamic discovery and registration of services.
 
 
