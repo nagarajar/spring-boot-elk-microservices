@@ -13,7 +13,7 @@ We will build this project in **6 phases**, one by one.
 ## 🎓 Phase 2 — Prepare ELK Using Docker (Hands-On)
 
 
-## 🎓 Phase 3 — Create 3 Spring Boot Microservices
+## 🎓 Phase 3 — Create 4 Spring Boot Microservices
 
 
 ## 🎓 Phase 4 — Configure Logback to Send Logs to Logstash
@@ -222,7 +222,7 @@ docker-compose restart
 
 - Payment Service
 
-# 📘 Eureka Server – Project Description (Spring Boot 3 + Java 17)
+# 📘 1. Eureka Server – Project Description (Spring Boot 3.5.8 + Java 17)
 
 This project is the **Service Discovery Server** built using **Spring Boot 3** and **Spring Cloud Netflix Eureka**.  
 It plays a central role in the microservices architecture by enabling dynamic discovery and registration of services.
@@ -242,7 +242,7 @@ It plays a central role in the microservices architecture by enabling dynamic di
 
 ## 🧩 Tech Stack
 
-- Spring Boot 3.5.x
+- Spring Boot 3.5.8
 - Spring Cloud Netflix Eureka Server
 - Spring Web (required for Eureka UI)
 - Java 17
@@ -269,3 +269,220 @@ All other services (Product, Order, Payment) will:
 This makes the architecture **scalable**, **fault-tolerant**, and **cloud-ready**.
 
 ---
+
+# 🚀 2. Product Service – Microservice (Spring Boot 3.5.8 + Java 17)
+
+The **Product Service** is a core microservice responsible for managing product information and exposing fully validated CRUD APIs.  
+It integrates seamlessly with **Eureka Discovery**, **H2 Database**, **Spring Data JPA**, and the **ELK Stack (Logstash → Elasticsearch → Kibana)** for structured JSON logging.
+
+---
+
+## 📘 Project Description
+
+### This service provides APIs to:
+- ➕ Create product  
+- ✏️ Update product  
+- 🔍 Get product by ID  
+- 📃 List all products  
+- ❌ Delete product  
+
+### Additional capabilities:
+- ✔ Auto-registers with Eureka Server as **product-service**  
+- ✔ Structured JSON logs sent to ELK stack  
+- ✔ Input validation using `jakarta.validation`  
+- ✔ Global exception handling with consistent responses  
+
+---
+
+## 🧩 Tech Stack
+
+| Component | Version |
+|----------|---------|
+| **Framework** | Spring Boot 3.5.8 |
+| **Java Version** | 17 |
+| **Build Tool** | Maven |
+| **Database** | H2 (In-Memory) |
+| **ORM** | Spring Data JPA + Hibernate |
+| **Discovery Service** | Eureka Client |
+| **Logging** | Logstash JSON Encoder + Logback |
+| **Cloud** | Spring Cloud 2025.0.0 |
+| **Boilerplate Reduction** | Lombok |
+
+---
+
+## 📦 Included Dependencies
+
+- `spring-boot-starter-web` – REST APIs  
+- `spring-boot-starter-data-jpa` – ORM & Repositories  
+- `spring-boot-starter-validation` – Request validation  
+- `spring-boot-starter-actuator` – Health checks  
+- `spring-cloud-starter-netflix-eureka-client` – Eureka registration  
+- `h2` – In-memory database  
+- `logstash-logback-encoder` – JSON logs for ELK  
+- `lombok`  
+
+---
+
+## ⚙️ Prerequisites Before Running
+
+### ✔ 1. Eureka Server must be running
+
+Visit Eureka Dashboard:  
+👉 http://localhost:8761  
+
+The service registers as:  
+`product-service`
+
+### ✔ 2. ELK Stack must be running
+- Logstash  
+- Elasticsearch  
+- Kibana  
+
+**Logs flow as:**  
+Product Service → Logstash → Elasticsearch → Kibana  
+
+---
+
+## 🗄️ Connecting to H2 Database
+
+Open browser:  
+👉 http://localhost:8081/h2-console
+
+### Connection Details
+
+| Property | Value |
+|---------|-------|
+| Driver Class | org.h2.Driver |
+| JDBC URL | jdbc:h2:mem:products |
+| Username | sa |
+| Password | password |
+
+---
+
+## 📊 Checking Logs in Logstash & Kibana
+
+### Example Log Entry
+```json
+{
+  "@timestamp": "2025-11-30T10:35:12",
+  "level": "INFO",
+  "logger": "com.elk.product.service.impl.ProductServiceImpl",
+  "message": "Product created successfully: id=1, name=Laptop",
+  "service": "product-service"
+}
+```
+
+### Kibana Log Viewer
+👉 http://localhost:5601 → Discover → Index Pattern: `app-logs-*`
+
+---
+
+## 🌐 Exposed Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v1/products` | List all products |
+| GET | `/api/v1/products/{id}` | Get product by ID |
+| POST | `/api/v1/products` | Create product |
+| PUT | `/api/v1/products/{id}` | Update product |
+| DELETE | `/api/v1/products/{id}` | Delete product |
+
+---
+
+## 🛠️ Configuration (`application.yml`)
+
+```yaml
+server:
+  port: 8081
+
+spring:
+  application:
+    name: product-service
+
+  datasource:
+    url: jdbc:h2:mem:products
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+```
+
+---
+
+## 📤 Sample API Usage
+
+### 🔹 Create Product  
+`POST /api/v1/products`
+
+#### Request Body
+```json
+{
+  "productCode": "P100",
+  "name": "Laptop",
+  "description": "High performance laptop",
+  "price": 55000,
+  "stockQuantity": 10,
+  "status": "ACTIVE"
+}
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2025-11-29T12:10:45",
+  "status": 200,
+  "message": "Product fetched successfully",
+  "data": {
+    "id": 1,
+    "productCode": "P100",
+    "name": "Laptop",
+    "description": "High performance laptop",
+    "price": 55000,
+    "stockQuantity": 10,
+    "status": "ACTIVE"
+  },
+  "path": "http://localhost:8081/api/v1/products/1"
+}
+```
+
+---
+
+### ❌ Error Response (Validation Failure)
+```json
+{
+  "timestamp": "2025-11-29T12:11:22",
+  "status": 400,
+  "error": "BAD_REQUEST",
+  "message": "Validation failed",
+  "fieldErrors": {
+    "name": "Product name cannot be empty",
+    "price": "Price must be greater than 0"
+  },
+  "path": "/api/v1/products"
+}
+```
+
+---
+
+## 🧩 Highlights
+
+- ✔ Controller validates requests using `@Valid`  
+- ✔ `ApiResponse<T>` ensures uniform responses  
+- ✔ GlobalExceptionHandler covers validation, not found, and generic errors  
+- ✔ `MapperUtil` converts DTO ↔ Entity  
+- ✔ Full JSON-structured logs for ELK  
+
+---
+
+
