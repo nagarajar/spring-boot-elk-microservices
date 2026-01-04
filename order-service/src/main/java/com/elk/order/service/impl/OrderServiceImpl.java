@@ -4,13 +4,14 @@ import com.elk.order.dto.*;
 import com.elk.order.entity.Order;
 import com.elk.order.entity.OrderItem;
 import com.elk.order.entity.OrderStatus;
-import com.elk.order.exception.OrderNotFoundException;
+import com.elk.order.exception.ResourceNotFoundException;
 import com.elk.order.repository.OrderItemRepository;
 import com.elk.order.repository.OrderRepository;
 import com.elk.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
@@ -121,20 +123,23 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OrderResponse getOrderById(Long orderId) {
        Order order = orderRepository.findByIdWithItems(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with id="+orderId));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id="+orderId));
         return mapToOrderResponse(order);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OrderResponse getOrderByOrderNumber(String orderNumber) {
         Order order = orderRepository.findByOrderNumber(orderNumber)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found with orderNumber="+orderNumber));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with orderNumber="+orderNumber));
         return mapToOrderResponse(order);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OrderResponse> findByCustomerId(String customerId) {
         return orderRepository.findByCustomerIdWithItems(customerId)
                 .stream()
@@ -143,6 +148,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OrderResponse> findByOrderStatus(String orderStatus) {
         return orderRepository.findByStatus(OrderStatus.valueOf(orderStatus.toUpperCase()))
                 .stream()
@@ -151,6 +157,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OrderSummaryResponse> findAllOrderSummaries() {
         return orderRepository.findAllOrderSummaries();
     }
