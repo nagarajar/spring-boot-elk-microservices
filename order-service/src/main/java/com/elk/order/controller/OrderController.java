@@ -7,6 +7,7 @@ import com.elk.order.dto.OrderSummaryResponse;
 import com.elk.order.service.OrderService;
 import com.elk.order.util.MapperUtil;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,8 @@ public class OrderController {
 
         OrderResponse orderResponse=orderservice.createOrder(orderRequest);
 
+        log.info("Order created successfully orderNumber={}", orderResponse.orderNumber());
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(MapperUtil.buildAPiResponse(
                    HttpStatus.CREATED,
@@ -41,7 +44,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<OrderResponse>> getOrderById(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<OrderResponse>> getOrderById(@PathVariable  @Min(1) Long id){
         log.info("Fetching order with id={}", id);
         OrderResponse orderResponse = orderservice.getOrderById(id);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -98,7 +101,7 @@ public class OrderController {
     }
 
     @GetMapping("/summary")
-    public ResponseEntity<ApiResponse<List<OrderSummaryResponse>>> getOrderSummaries(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<List<OrderSummaryResponse>>> getOrderSummaries(){
         log.info("Fetching order summaries");
         List<OrderSummaryResponse> orderResponse = orderservice.findAllOrderSummaries();
         return ResponseEntity.status(HttpStatus.OK).body(

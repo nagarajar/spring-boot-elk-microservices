@@ -6,6 +6,7 @@ import com.elk.order.entity.Order;
 import com.elk.order.entity.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // Find order with items (avoid N+1)
     @Query("""
-            SELECT o from order o
+            SELECT o from Order o
             JOIN FETCH o.items
             WHERE o.id = :orderId
     """)
@@ -44,25 +45,22 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             o.totalAmount
         )
         FROM Order o
-        ORDER BY o.createdDate DESC
+        ORDER BY o.createdAt DESC
     """)
     List<OrderSummaryResponse> findAllOrderSummaries();
 
+
     @Query("""
-        SELECT new com.elk.order.dto.OrderResponse(
-            o.id,
-            o.orderNumber,
-            o.customerId,
-            o.status,
-            o.totalAmount,
-            o.createdAt,
-            o.updatedAt,
-            o.createdBy,
-            o.updatedBy,
-            null
-        )
-        FROM Order o
-        WHERE o.id = :orderId
+    SELECT new com.elk.order.dto.OrderSummaryResponse(
+        o.id,
+        o.orderNumber,
+        o.customerId,
+        o.status,
+        o.totalAmount
+    )
+    FROM Order o
+    WHERE o.id = :orderId
     """)
-    Optional<OrderResponse> findOrderSummaryById(Long orderId);
+    Optional<OrderSummaryResponse> findOrderSummaryById(@Param("orderId") Long orderId);
+
 }

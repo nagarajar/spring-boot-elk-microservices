@@ -1,5 +1,6 @@
 package com.elk.order.service.impl;
 
+import com.elk.order.client.ProductClient;
 import com.elk.order.dto.*;
 import com.elk.order.entity.Order;
 import com.elk.order.entity.OrderItem;
@@ -25,6 +26,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository itemRepository;
+    private final ProductClient productClient;
 
     @Override
     public OrderResponse createOrder(OrderRequest request) {
@@ -63,12 +65,13 @@ public class OrderServiceImpl implements OrderService {
 
     private OrderItem buildOrderItem(OrderItemRequest itemRequest, Order order) {
         // Calculate total price for that item
-        ProductResponse productResponse = getProductFromProductService(itemRequest.productId());
+        ProductResponse productResponse = getProductFromProductService(itemRequest.productId()).getData();
+        log.info("Product response from the feign call : {} ", productResponse);
         BigDecimal totalPrice = productResponse.price().multiply(BigDecimal.valueOf(itemRequest.quantity()));
         return OrderItem.builder()
                 .order(order)
                 .productId(itemRequest.productId())
-                .productName(productResponse.productName())
+                .productName(productResponse.name())
                 .price(productResponse.price())
                 .quantity(itemRequest.quantity())
                 .totalPrice(totalPrice)
@@ -113,13 +116,9 @@ public class OrderServiceImpl implements OrderService {
                 .toList();
     }
 
-    private ProductResponse getProductFromProductService(Long productId){
+    private ApiResponse<ProductResponse> getProductFromProductService(Long productId){
         //TODO: Replace with Product Service REST/Feign call
-        return ProductResponse.builder()
-                .productId(productId)
-                .productName("Sample Product")
-                .price(BigDecimal.valueOf(100.00))
-                .build();
+        return productClient.getProductById (productId);
     }
 
     @Override

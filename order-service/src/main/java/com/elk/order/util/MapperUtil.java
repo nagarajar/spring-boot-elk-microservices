@@ -26,6 +26,7 @@ public class MapperUtil {
                 .error(errorCode)
                 .message(message)
                 .path(path)
+                .fieldErrors(fieldError)
                 .build();
     }
 }
