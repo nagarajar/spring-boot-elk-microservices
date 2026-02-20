@@ -484,5 +484,267 @@ eureka:
 - ✔ Full JSON-structured logs for ELK  
 
 ---
+---
+
+# 🚀 3. Order Service – Microservice (Spring Boot 3.5.8 + Java 17)
+
+The **Order Service** is a core microservice responsible for managing customer orders and coordinating with the Product Service for product validation and pricing.
+
+It integrates seamlessly with **Eureka Discovery**, **H2 Database**, **Spring Data JPA**, **OpenFeign**, and the **ELK Stack (Logstash → Elasticsearch → Kibana)** for structured JSON logging.
+
+---
+
+## 📘 Project Description
+
+### This service provides APIs to:
+- ➕ Create order
+- 🔍 Get order by ID
+- 📃 List all orders
+- 🔎 Get orders by customer ID
+- 📊 Get orders by status
+- 🧾 Get order summary (projection-based)
+
+### Additional capabilities:
+- ✔ Auto-registers with Eureka Server as **order-service**
+- ✔ Communicates with **product-service** using OpenFeign
+- ✔ Structured JSON logs sent to ELK stack
+- ✔ Input validation using `jakarta.validation`
+- ✔ Global exception handling with consistent responses
+- ✔ Standardized `ApiResponse<T>` wrapper
+
+---
+
+## 🧩 Tech Stack
+
+| Component | Version |
+|----------|---------|
+| **Framework** | Spring Boot 3.5.8 |
+| **Java Version** | 17 |
+| **Build Tool** | Maven |
+| **Database** | H2 (In-Memory) |
+| **ORM** | Spring Data JPA + Hibernate |
+| **Discovery Service** | Eureka Client |
+| **Inter-Service Communication** | OpenFeign |
+| **Logging** | Logstash JSON Encoder + Logback |
+| **Cloud** | Spring Cloud 2025.0.0 |
+| **Boilerplate Reduction** | Lombok |
+
+---
+
+## 📦 Included Dependencies
+
+- `spring-boot-starter-web` – REST APIs
+- `spring-boot-starter-data-jpa` – ORM & Repositories
+- `spring-boot-starter-validation` – Request validation
+- `spring-boot-starter-actuator` – Health checks
+- `spring-cloud-starter-netflix-eureka-client` – Eureka registration
+- `spring-cloud-starter-openfeign` – Inter-service communication
+- `h2` – In-memory database
+- `logstash-logback-encoder` – JSON logs for ELK
+- `lombok`
+
+---
+
+## ⚙️ Prerequisites Before Running
+
+### ✔ 1. Eureka Server must be running
+
+Visit Eureka Dashboard:  
+👉 http://localhost:8761
+
+The service registers as:  
+`order-service`
+
+---
+
+### ✔ 2. Product Service must be running
+
+Order Service depends on Product Service for:
+- Product validation
+- Fetching price details
+
+---
+
+### ✔ 3. ELK Stack must be running
+
+- Logstash
+- Elasticsearch
+- Kibana
+
+**Logs flow as:**  
+Order Service → Logstash → Elasticsearch → Kibana
+
+---
+
+## 🗄️ Connecting to H2 Database
+
+Open browser:  
+👉 http://localhost:8082/h2-console
+
+### Connection Details
+
+| Property | Value |
+|---------|-------|
+| Driver Class | org.h2.Driver |
+| JDBC URL | jdbc:h2:mem:orders |
+| Username | sa |
+| Password | password |
+
+---
+
+## 📊 Checking Logs in Logstash & Kibana
+
+### Example Log Entry
+```json
+{
+  "@timestamp": "2026-01-05T10:35:12",
+  "level": "INFO",
+  "logger": "com.elk.order.service.impl.OrderServiceImpl",
+  "message": "Order created successfully: id=1, orderNumber=ORD-20260105-0001",
+  "service": "order-service"
+}
+```
+
+### Kibana Log Viewer
+👉 http://localhost:5601 → Discover → Index Pattern: `app-logs-*`
+
+---
+
+## 🌐 Exposed Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/orders` | Create order |
+| GET | `/api/v1/orders` | List all orders |
+| GET | `/api/v1/orders/{id}` | Get order by ID |
+| GET | `/api/v1/orders/customer/{customerId}` | Get orders by customer |
+| GET | `/api/v1/orders/status/{status}` | Get orders by status |
+| GET | `/api/v1/orders/summary` | Get summarized order data |
+
+---
+
+## 🛠️ Configuration (`application.yml`)
+
+```yaml
+server:
+  port: 8082
+
+spring:
+  application:
+    name: order-service
+
+  datasource:
+    url: jdbc:h2:mem:orders
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+```
+
+---
+
+## 📤 Sample API Usage
+
+### 🔹 Create Order
+`POST /api/v1/orders`
+
+#### Request Body
+```json
+{
+  "customerId": "CUST-101",
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2
+    }
+  ]
+}
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2026-01-05T12:10:45",
+  "status": 201,
+  "message": "Order created successfully",
+  "data": {
+    "id": 1,
+    "orderNumber": "ORD-20260105-0001",
+    "customerId": "CUST-101",
+    "status": "CREATED",
+    "totalAmount": 110000
+  },
+  "path": "http://localhost:8082/api/v1/orders/1"
+}
+```
+
+---
+
+### ❌ Error Response (Validation Failure)
+```json
+{
+  "timestamp": "2026-01-05T12:11:22",
+  "status": 400,
+  "error": "VALIDATION_FAILED",
+  "message": "Input validation failed",
+  "fieldErrors": {
+    "customerId": "Customer ID cannot be empty",
+    "items": "Order must contain at least one item"
+  },
+  "path": "/api/v1/orders"
+}
+```
+
+---
+
+### ❌ Error Response (Product Not Found)
+```json
+{
+  "timestamp": "2026-01-05T12:15:10",
+  "status": 404,
+  "error": "PRODUCT_NOT_FOUND",
+  "message": "Product with ID 10 not found",
+  "path": "/api/v1/orders"
+}
+```
+
+---
+
+### ❌ Error Response (Product Service Down)
+```json
+{
+  "timestamp": "2026-01-05T12:18:44",
+  "status": 503,
+  "error": "SERVICE_UNAVAILABLE",
+  "message": "Product Service is currently unavailable",
+  "path": "/api/v1/orders"
+}
+```
+
+---
+
+## 🧩 Highlights
+
+- ✔ Order creation validates products using OpenFeign
+- ✔ `@Valid` ensures request-level validation
+- ✔ `ApiResponse<T>` ensures uniform responses
+- ✔ GlobalExceptionHandler handles validation, Feign, and generic errors
+- ✔ JPQL constructor projection used for summary endpoint
+- ✔ Full JSON-structured logs for ELK
+- ✔ Clean microservice architecture with service discovery
+
+---
+
 
 
