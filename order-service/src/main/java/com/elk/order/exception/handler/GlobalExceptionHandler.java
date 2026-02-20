@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -49,35 +48,6 @@ public class GlobalExceptionHandler {
                 errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
-
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<ErrorResponse> handleValidationError(
-//            MethodArgumentNotValidException ex,
-//            HttpServletRequest request) {
-//
-//        Map<String, String> errors = new LinkedHashMap<>();
-//
-//        ex.getBindingResult().getAllErrors().forEach(error -> {
-//            if (error instanceof FieldError fieldError) {
-//                errors.put(fieldError.getField(), fieldError.getDefaultMessage());
-//            } else {
-//                errors.put(error.getObjectName(), error.getDefaultMessage());
-//            }
-//        });
-//
-//        log.error("Validation failed: {}, path={}", errors, request.getRequestURI());
-//
-//        ErrorResponse errorResponse = MapperUtil.buildErrorResponse(
-//                HttpStatus.BAD_REQUEST,
-//                "VALIDATION_FAILED",
-//                "Input validation failed",
-//                request.getRequestURI(),
-//                errors
-//        );
-//
-//        return ResponseEntity.badRequest().body(errorResponse);
-//    }
-
 
     // Handle JSON parse errors + @RequestBody errors (400)
     @ExceptionHandler(HttpMessageNotReadableException.class)
