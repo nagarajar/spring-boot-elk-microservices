@@ -305,7 +305,7 @@ It integrates seamlessly with **Eureka Discovery**, **H2 Database**, **Spring Da
 | **ORM** | Spring Data JPA + Hibernate |
 | **Discovery Service** | Eureka Client |
 | **Logging** | Logstash JSON Encoder + Logback |
-| **Cloud** | Spring Cloud 2025.0.0 |
+| **Cloud** | Spring Cloud 2025.0.1 |
 | **Boilerplate Reduction** | Lombok |
 
 ---
@@ -420,7 +420,7 @@ eureka:
 
 ## 📤 Sample API Usage
 
-### 🔹 Create Product  
+### 🔹 Create Product
 `POST /api/v1/products`
 
 #### Request Body
@@ -475,6 +475,139 @@ eureka:
 
 ---
 
+### 🔹 Get Product by ID
+`GET /api/v1/products/{id}`
+
+#### Request Example
+```
+GET http://localhost:8081/api/v1/products/1
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2025-11-29T12:15:20",
+  "status": 200,
+  "message": "Product fetched successfully",
+  "data": {
+    "id": 1,
+    "productCode": "P100",
+    "name": "Laptop",
+    "description": "High performance laptop",
+    "price": 55000,
+    "stockQuantity": 10,
+    "status": "ACTIVE"
+  },
+  "path": "http://localhost:8081/api/v1/products/1"
+}
+```
+
+---
+
+### 🔹 List All Products
+`GET /api/v1/products`
+
+#### Request Example
+```
+GET http://localhost:8081/api/v1/products
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2025-11-29T12:20:10",
+  "status": 200,
+  "message": "All products fetched successfully",
+  "data": [
+    {
+      "id": 1,
+      "productCode": "P100",
+      "name": "Laptop",
+      "description": "High performance laptop",
+      "price": 55000,
+      "stockQuantity": 10,
+      "status": "ACTIVE"
+    },
+    {
+      "id": 2,
+      "productCode": "P101",
+      "name": "Mouse",
+      "description": "Wireless mouse",
+      "price": 500,
+      "stockQuantity": 100,
+      "status": "ACTIVE"
+    }
+  ],
+  "path": "http://localhost:8081/api/v1/products"
+}
+```
+
+---
+
+### 🔹 Update Product
+`PUT /api/v1/products/{id}`
+
+#### Request Body
+```json
+{
+  "productCode": "P100",
+  "name": "Laptop Pro",
+  "description": "High performance gaming laptop",
+  "price": 75000,
+  "stockQuantity": 5,
+  "status": "ACTIVE"
+}
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2025-11-29T12:25:45",
+  "status": 200,
+  "message": "Product updated successfully",
+  "data": {
+    "id": 1,
+    "productCode": "P100",
+    "name": "Laptop Pro",
+    "description": "High performance gaming laptop",
+    "price": 75000,
+    "stockQuantity": 5,
+    "status": "ACTIVE"
+  },
+  "path": "http://localhost:8081/api/v1/products/1"
+}
+```
+
+---
+
+### 🔹 Delete Product
+`DELETE /api/v1/products/{id}`
+
+#### Request Example
+```
+DELETE http://localhost:8081/api/v1/products/1
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2025-11-29T12:30:15",
+  "status": 200,
+  "message": "Product deleted successfully",
+  "path": "http://localhost:8081/api/v1/products/1"
+}
+```
+
+---
+
 ## 🧩 Highlights
 
 - ✔ Controller validates requests using `@Valid`  
@@ -517,7 +650,7 @@ It integrates seamlessly with **Eureka Discovery**, **H2 Database**, **Spring Da
 
 | Component | Version |
 |----------|---------|
-| **Framework** | Spring Boot 3.5.8 |
+| **Framework** | Spring Boot 3.5.9 |
 | **Java Version** | 17 |
 | **Build Tool** | Maven |
 | **Database** | H2 (In-Memory) |
@@ -525,7 +658,7 @@ It integrates seamlessly with **Eureka Discovery**, **H2 Database**, **Spring Da
 | **Discovery Service** | Eureka Client |
 | **Inter-Service Communication** | OpenFeign |
 | **Logging** | Logstash JSON Encoder + Logback |
-| **Cloud** | Spring Cloud 2025.0.0 |
+| **Cloud** | Spring Cloud 2025.0.1 |
 | **Boilerplate Reduction** | Lombok |
 
 ---
@@ -733,6 +866,178 @@ eureka:
 
 ---
 
+### 🔹 Get Order by ID
+`GET /api/v1/orders/{id}`
+
+#### Request Example
+```
+GET http://localhost:8082/api/v1/orders/1
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2026-01-05T12:30:20",
+  "status": 200,
+  "message": "Order details fetched successfully",
+  "data": {
+    "id": 1,
+    "orderNumber": "ORD-20260105-0001",
+    "customerId": "CUST-101",
+    "status": "CREATED",
+    "totalAmount": 110000
+  },
+  "path": "http://localhost:8082/api/v1/orders/1"
+}
+```
+
+---
+
+### 🔹 List All Orders
+`GET /api/v1/orders`
+
+#### Request Example
+```
+GET http://localhost:8082/api/v1/orders
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2026-01-05T12:35:45",
+  "status": 200,
+  "message": "All orders fetched successfully",
+  "data": [
+    {
+      "id": 1,
+      "orderNumber": "ORD-20260105-0001",
+      "customerId": "CUST-101",
+      "status": "CREATED",
+      "totalAmount": 110000
+    },
+    {
+      "id": 2,
+      "orderNumber": "ORD-20260105-0002",
+      "customerId": "CUST-102",
+      "status": "COMPLETED",
+      "totalAmount": 55000
+    }
+  ],
+  "path": "http://localhost:8082/api/v1/orders"
+}
+```
+
+---
+
+### 🔹 Get Orders by Customer ID
+`GET /api/v1/orders/customer/{customerId}`
+
+#### Request Example
+```
+GET http://localhost:8082/api/v1/orders/customer/CUST-101
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2026-01-05T12:40:30",
+  "status": 200,
+  "message": "Orders fetched successfully",
+  "data": [
+    {
+      "id": 1,
+      "orderNumber": "ORD-20260105-0001",
+      "customerId": "CUST-101",
+      "status": "CREATED",
+      "totalAmount": 110000
+    },
+    {
+      "id": 3,
+      "orderNumber": "ORD-20260105-0003",
+      "customerId": "CUST-101",
+      "status": "PENDING",
+      "totalAmount": 25000
+    }
+  ],
+  "path": "http://localhost:8082/api/v1/orders/customer/CUST-101"
+}
+```
+
+---
+
+### 🔹 Get Orders by Status
+`GET /api/v1/orders/status/{status}`
+
+#### Request Example
+```
+GET http://localhost:8082/api/v1/orders/status/COMPLETED
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2026-01-05T12:45:15",
+  "status": 200,
+  "message": "Orders fetched successfully",
+  "data": [
+    {
+      "id": 2,
+      "orderNumber": "ORD-20260105-0002",
+      "customerId": "CUST-102",
+      "status": "COMPLETED",
+      "totalAmount": 55000
+    }
+  ],
+  "path": "http://localhost:8082/api/v1/orders/status/COMPLETED"
+}
+```
+
+---
+
+### 🔹 Get Order Summary
+`GET /api/v1/orders/summary`
+
+#### Request Example
+```
+GET http://localhost:8082/api/v1/orders/summary
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2026-01-05T12:50:00",
+  "status": 200,
+  "message": "Order summary fetched successfully",
+  "data": [
+    {
+      "orderNumber": "ORD-20260105-0001",
+      "customerId": "CUST-101",
+      "totalAmount": 110000,
+      "status": "CREATED"
+    },
+    {
+      "orderNumber": "ORD-20260105-0002",
+      "customerId": "CUST-102",
+      "totalAmount": 55000,
+      "status": "COMPLETED"
+    }
+  ],
+  "path": "http://localhost:8082/api/v1/orders/summary"
+}
+```
+
+---
+
 ## 🧩 Highlights
 
 - ✔ Order creation validates products using OpenFeign
@@ -744,7 +1049,7 @@ eureka:
 - ✔ Clean microservice architecture with service discovery
 
 ---
-# 💳 4. Payment Service – Microservice (Spring Boot 3.5.8 + Java 17)
+# 💳 4. Payment Service – Microservice (Spring Boot 3.5.11 + Java 17)
 
 The **Payment Service** is a core microservice responsible for processing payments for customer orders and validating order details through inter-service communication.
 
@@ -785,7 +1090,7 @@ It integrates seamlessly with **Eureka Discovery**, **H2 Database**, **Spring Da
 | **Discovery Service** | Eureka Client |
 | **Inter-Service Communication** | OpenFeign |
 | **Logging** | Logstash JSON Encoder + Logback |
-| **Cloud** | Spring Cloud 2025.0.0 |
+| **Cloud** | Spring Cloud 2025.0.1 |
 | **Boilerplate Reduction** | Lombok |
 
 ---
@@ -878,6 +1183,10 @@ Go to → **Discover** → Select Index Pattern: `app-logs-*`
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/v1/payments` | Process payment |
+| GET | `/api/v1/payments/{paymentId}` | Get payment by ID |
+| GET | `/api/v1/payments/order/{orderId}` | Get payments by order ID |
+| GET | `/api/v1/payments/status/{status}` | Get payments by status |
+| GET | `/api/v1/payments` | Get all payments |
 
 ---
 
