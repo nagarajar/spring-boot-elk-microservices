@@ -484,9 +484,8 @@ eureka:
 - ✔ Full JSON-structured logs for ELK  
 
 ---
----
 
-# 🚀 3. Order Service – Microservice (Spring Boot 3.5.8 + Java 17)
+# 🚀 3. Order Service – Microservice (Spring Boot 3.5.9 + Java 17)
 
 The **Order Service** is a core microservice responsible for managing customer orders and coordinating with the Product Service for product validation and pricing.
 
@@ -745,6 +744,431 @@ eureka:
 - ✔ Clean microservice architecture with service discovery
 
 ---
+# 💳 4. Payment Service – Microservice (Spring Boot 3.5.8 + Java 17)
 
+The **Payment Service** is a core microservice responsible for processing payments for customer orders and validating order details through inter-service communication.
+
+It integrates seamlessly with **Eureka Discovery**, **H2 Database**, **Spring Data JPA**, **OpenFeign**, and the **ELK Stack (Logstash → Elasticsearch → Kibana)** for structured JSON logging.
+
+---
+
+## 📘 Project Description
+
+### This service provides APIs to:
+- 💳 Process payment
+- 🔍 Get payment by ID
+- 📃 List all payments
+- 🔎 Get payments by order ID
+- 📊 Get payments by status
+
+### Additional capabilities:
+- ✔ Auto-registers with Eureka Server as **payment-service**
+- ✔ Communicates with **order-service** using OpenFeign
+- ✔ Fetches order amount before processing payment
+- ✔ Structured JSON logs sent to ELK stack
+- ✔ Input validation using `jakarta.validation`
+- ✔ Global exception handling with consistent responses
+- ✔ Standardized `ApiResponse<T>` wrapper
+- ✔ JPA Auditing (`createdAt`, `updatedAt`, `createdBy`, `updatedBy`)
+
+---
+
+## 🧩 Tech Stack
+
+| Component | Version |
+|----------|---------|
+| **Framework** | Spring Boot 3.5.11 |
+| **Java Version** | 17 |
+| **Build Tool** | Maven |
+| **Database** | H2 (In-Memory) |
+| **ORM** | Spring Data JPA + Hibernate |
+| **Discovery Service** | Eureka Client |
+| **Inter-Service Communication** | OpenFeign |
+| **Logging** | Logstash JSON Encoder + Logback |
+| **Cloud** | Spring Cloud 2025.0.0 |
+| **Boilerplate Reduction** | Lombok |
+
+---
+
+## 📦 Included Dependencies
+
+- `spring-boot-starter-web` – REST APIs
+- `spring-boot-starter-data-jpa` – ORM & Repositories
+- `spring-boot-starter-validation` – Request validation
+- `spring-boot-starter-actuator` – Health checks
+- `spring-cloud-starter-netflix-eureka-client` – Eureka registration
+- `spring-cloud-starter-openfeign` – Inter-service communication
+- `h2` – In-memory database
+- `logstash-logback-encoder` – JSON logs for ELK
+- `lombok`
+
+---
+
+## ⚙️ Prerequisites Before Running
+
+### ✔ 1. Eureka Server must be running
+
+Visit Eureka Dashboard:  
+👉 http://localhost:8761  
+
+The service registers as:  
+`payment-service`
+
+---
+
+### ✔ 2. Order Service must be running
+
+Payment Service depends on Order Service for:
+- Order validation
+- Fetching total order amount
+
+---
+
+### ✔ 3. ELK Stack must be running
+
+- Logstash  
+- Elasticsearch  
+- Kibana  
+
+**Logs flow as:**  
+Payment Service → Logstash → Elasticsearch → Kibana
+
+---
+
+## 🗄️ Connecting to H2 Database
+
+Open browser:  
+👉 http://localhost:8083/h2-console  
+
+### Connection Details
+
+| Property | Value |
+|---------|-------|
+| Driver Class | org.h2.Driver |
+| JDBC URL | jdbc:h2:mem:payments |
+| Username | sa |
+| Password | password |
+
+---
+
+## 📊 Checking Logs in Logstash & Kibana
+
+### Example Log Entry
+
+```json
+{
+  "@timestamp": "2026-02-22T20:35:12",
+  "level": "INFO",
+  "logger": "com.elk.payment.service.impl.PaymentServiceImpl",
+  "message": "Payment processed successfully: id=1, orderId=1",
+  "service": "payment-service"
+}
+```
+---
+
+## 📊 Kibana Log Viewer
+
+👉 http://localhost:5601  
+Go to → **Discover** → Select Index Pattern: `app-logs-*`
+
+---
+
+## 🌐 Exposed Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/payments` | Process payment |
+
+---
+
+## 🛠️ Configuration (`application.yml`)
+
+```yaml
+server:
+  port: 8083
+
+spring:
+  application:
+    name: payment-service
+
+  datasource:
+    url: jdbc:h2:mem:payments
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+```
+---
+
+## 📤 Sample API Usage
+
+### 🔹 Process Payment
+`POST /api/v1/payments`
+
+#### Request Body
+```json
+{
+  "orderId": 1,
+  "paymentMethod": "UPI"
+}
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2026-02-22T20:40:45",
+  "status": 201,
+  "message": "Payment processed successfully",
+  "data": {
+    "id": 1,
+    "orderId": 1,
+    "amount": 110000,
+    "paymentMethod": "UPI",
+    "status": "SUCCESS"
+  },
+  "path": "http://localhost:8083/api/v1/payments"
+}
+```
+
+---
+
+### ❌ Error Response (Order Not Found)
+```json
+{
+  "timestamp": "2026-02-22T20:42:10",
+  "status": 404,
+  "error": "ORDER_NOT_FOUND",
+  "message": "Order with ID 10 not found",
+  "path": "/api/v1/payments"
+}
+```
+
+---
+
+### ❌ Error Response (Order Service Down)
+```json
+{
+  "timestamp": "2026-02-22T20:45:44",
+  "status": 503,
+  "error": "SERVICE_UNAVAILABLE",
+  "message": "Order Service is currently unavailable",
+  "path": "/api/v1/payments"
+}
+```
+
+---
+
+### 🔹 Get Payment by ID
+`GET /api/v1/payments/{paymentId}`
+
+#### Request Example
+```
+GET http://localhost:8083/api/v1/payments/1
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2026-02-22T20:50:10",
+  "status": 200,
+  "message": "Payment details fetched successfully",
+  "data": {
+    "id": 1,
+    "orderId": 1,
+    "amount": 110000,
+    "paymentMethod": "UPI",
+    "status": "SUCCESS"
+  },
+  "path": "http://localhost:8083/api/v1/payments/1"
+}
+```
+
+---
+
+### ❌ Error Response (Payment Not Found)
+```json
+{
+  "timestamp": "2026-02-22T20:52:15",
+  "status": 404,
+  "error": "PAYMENT_NOT_FOUND",
+  "message": "Payment with ID 99 not found",
+  "path": "/api/v1/payments/99"
+}
+```
+
+---
+
+### 🔹 Get Payments by Order ID
+`GET /api/v1/payments/order/{orderId}`
+
+#### Request Example
+```
+GET http://localhost:8083/api/v1/payments/order/1
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2026-02-22T20:55:30",
+  "status": 200,
+  "message": "Payments fetched successfully",
+  "data": [
+    {
+      "id": 1,
+      "orderId": 1,
+      "amount": 110000,
+      "paymentMethod": "UPI",
+      "status": "SUCCESS"
+    },
+    {
+      "id": 2,
+      "orderId": 1,
+      "amount": 5000,
+      "paymentMethod": "CREDIT_CARD",
+      "status": "PENDING"
+    }
+  ],
+  "path": "http://localhost:8083/api/v1/payments/order/1"
+}
+```
+
+---
+
+### ❌ Error Response (Order Not Found)
+```json
+{
+  "timestamp": "2026-02-22T20:57:45",
+  "status": 404,
+  "error": "ORDER_NOT_FOUND",
+  "message": "Order with ID 99 not found",
+  "path": "/api/v1/payments/order/99"
+}
+```
+
+---
+
+### 🔹 Get Payments by Status
+`GET /api/v1/payments/status/{status}`
+
+#### Request Example
+```
+GET http://localhost:8083/api/v1/payments/status/SUCCESS
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2026-02-22T21:00:20",
+  "status": 200,
+  "message": "Payments fetched successfully",
+  "data": [
+    {
+      "id": 1,
+      "orderId": 1,
+      "amount": 110000,
+      "paymentMethod": "UPI",
+      "status": "SUCCESS"
+    },
+    {
+      "id": 3,
+      "orderId": 2,
+      "amount": 55000,
+      "paymentMethod": "DEBIT_CARD",
+      "status": "SUCCESS"
+    }
+  ],
+  "path": "http://localhost:8083/api/v1/payments/status/SUCCESS"
+}
+```
+
+---
+
+### ❌ Error Response (No Payments Found)
+```json
+{
+  "timestamp": "2026-02-22T21:02:35",
+  "status": 200,
+  "message": "Payments fetched successfully",
+  "data": [],
+  "path": "http://localhost:8083/api/v1/payments/status/REFUNDED"
+}
+```
+
+---
+
+### 🔹 Get All Payments
+`GET /api/v1/payments`
+
+#### Request Example
+```
+GET http://localhost:8083/api/v1/payments
+```
+
+---
+
+### ✅ Success Response
+```json
+{
+  "timestamp": "2026-02-22T21:05:10",
+  "status": 200,
+  "message": "All payments fetched successfully",
+  "data": [
+    {
+      "id": 1,
+      "orderId": 1,
+      "amount": 110000,
+      "paymentMethod": "UPI",
+      "status": "SUCCESS"
+    },
+    {
+      "id": 2,
+      "orderId": 1,
+      "amount": 5000,
+      "paymentMethod": "CREDIT_CARD",
+      "status": "PENDING"
+    },
+    {
+      "id": 3,
+      "orderId": 2,
+      "amount": 55000,
+      "paymentMethod": "DEBIT_CARD",
+      "status": "SUCCESS"
+    }
+  ],
+  "path": "http://localhost:8083/api/v1/payments"
+}
+```
+
+---
+
+## 🧩 Highlights
+
+- ✔ Payment validates order using OpenFeign
+- ✔ Order amount fetched from Order Service (secure design)
+- ✔ @Valid ensures request-level validation
+- ✔ ApiResponse<T> ensures uniform responses
+- ✔ GlobalExceptionHandler handles validation, Feign, and generic errors
+- ✔ JPA Auditing enabled using @EnableJpaAuditing
+- ✔ Full JSON-structured logs for ELK
+- ✔ Clean microservice architecture with service discovery
+- ✔ Ready for future payment gateway integration
+---
 
 
